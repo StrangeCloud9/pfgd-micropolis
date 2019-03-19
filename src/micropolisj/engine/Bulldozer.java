@@ -102,6 +102,7 @@ class Bulldozer extends ToolStroke
 		for (int yy = 0; yy < h; yy++) {
 			for (int xx = 0; xx < w; xx++) {
 				int tile = eff.getTile(xx,yy);
+				
 				if (tile == CLEAR)
 					continue;
 

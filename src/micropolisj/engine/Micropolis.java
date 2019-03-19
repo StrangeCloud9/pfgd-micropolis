@@ -437,7 +437,8 @@ public class Micropolis
 	{
 		int myTile = eff.getTile(0, 0);
 		TileSpec ts = Tiles.get(myTile);
-		if (ts.canBulldoze) {
+		
+		if (ts.canBulldoze || isRubble(myTile)) {
 			return true;
 		}
 
