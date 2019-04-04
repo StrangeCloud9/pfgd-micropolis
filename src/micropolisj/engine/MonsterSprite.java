@@ -22,7 +22,9 @@ public class MonsterSprite extends Sprite
 	int origX;
 	int origY;
 	int step;
+	int directChangeCnt;
 	boolean flag; //true if the monster wants to return home
+	int curDirec;
 
 	//GODZILLA FRAMES
 	//   1...3 : northeast
@@ -42,7 +44,16 @@ public class MonsterSprite extends Sprite
 	static int [] ND2 = {  1, 2, 3, 0 };
 	static int [] nn1 = {  2, 5, 8, 11 };
 	static int [] nn2 = { 11, 2, 5,  8 };
-
+	
+	public boolean isWire(int xpos, int ypos) {
+		boolean isWireFlag = false;
+		int c = getChar(xpos, ypos);
+		for(int i = 0; i < WireTable.length; i++) {
+			if(WireTable[i] == c) 
+				isWireFlag = true;
+		}
+		return isWireFlag;
+	}
 	public MonsterSprite(Micropolis engine, int xpos, int ypos)
 	{
 		super(engine, SpriteKind.GOD);
@@ -61,13 +72,31 @@ public class MonsterSprite extends Sprite
 			(ypos > city.getHeight() / 2 ? 1 : 4);
 
 		this.count = 1000;
+		
 		CityLocation p = city.getLocationOfMaxPollution();
 		this.destX = p.x * 16 + 8;
 		this.destY = p.y * 16 + 8;
 		this.flag = false;
 		this.step = 1;
+		
+		this.directChangeCnt = 5;
+		this.curDirec = city.PRNG.nextInt(11) % 5;
 	}
-
+//	@Override
+//	public void moveImpl() {
+//		this.directChangeCnt -= 1;
+//		
+//		if(this.directChangeCnt <= 0) {
+//			this.directChangeCnt = 100;
+//			this.curDirec = city.PRNG.nextInt(11) % 5;
+//		}
+//		int nextD = this.curDirec;
+//		//int nextD = city.PRNG.nextInt(11);
+//		//nextD = nextD % 5;
+//		this.x += Gx[nextD];
+//		this.y += Gy[nextD];
+//		return;
+//	}
 	@Override
 	public void moveImpl()
 	{
@@ -81,7 +110,7 @@ public class MonsterSprite extends Sprite
 
 		int d = (this.frame - 1) / 3;   // basic direction
 		int z = (this.frame - 1) % 3;   // step index (only valid for d<4)
-
+		//d = city.PRNG.nextInt(2);
 		if (d < 4) { //turn n s e w
 			assert step == -1 || step == 1;
 			if (z == 2) step = -1;
@@ -152,7 +181,12 @@ public class MonsterSprite extends Sprite
 		this.frame = ((d * 3) + z) + 1;
 
 		assert this.frame >= 1 && this.frame <= 16;
-
+		
+		int nextX = this.x + Gx[d];
+		int nextY = this.y + Gy[d];
+		boolean isWireFlag = isWire(nextX, nextY);
+		if(isWireFlag) return;
+		
 		this.x += Gx[d];
 		this.y += Gy[d];
 

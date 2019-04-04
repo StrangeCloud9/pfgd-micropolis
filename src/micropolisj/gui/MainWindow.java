@@ -1377,6 +1377,7 @@ public class MainWindow extends JFrame
 				if (!engine.autoBudget && engine.isBudgetTime())
 				{
 					showAutoBudget();
+					fundsChanged();
 					return;
 				}
 			}

@@ -15,7 +15,7 @@ package micropolisj.engine;
 public enum MicropolisTool
 {
 	BULLDOZER(1, 1),
-	WIRE(1, 5),   //cost=25 for underwater
+	WIRE(1, 100),   //cost=25 for underwater
 	ROADS(1, 10), //cost=50 for over water
 	RAIL(1, 20),  //cost=100 for underwater
 	RESIDENTIAL(3, 100),

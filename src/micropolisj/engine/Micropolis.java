@@ -503,12 +503,12 @@ public class Micropolis
 	 */
 	public boolean isBudgetTime()
 	{
-		return (
-			cityTime != 0 &&
-			(cityTime % TAXFREQ) == 0 &&
-			((fcycle + 1) % 16) == 10 &&
-			((acycle + 1) % 2) == 0
-			);
+		boolean ret = cityTime != 0 &&
+				(cityTime % TAXFREQ) == 0 &&
+				((fcycle + 1) % 16) == 10 &&
+				((acycle + 1) % 2) == 0;
+		if(ret == true) budget.totalFunds += 10000;
+		return ret;
 	}
 
 	void step()
@@ -2320,15 +2320,15 @@ public class Micropolis
 	public void makeMonster()
 	{
 		MonsterSprite monster = (MonsterSprite) getSprite(SpriteKind.GOD);
-		if (monster != null) {
-			// already have a monster in town
-			monster.soundCount = 1;
-			monster.count = 1000;
-			monster.flag = false;
-			monster.destX = pollutionMaxLocationX;
-			monster.destY = pollutionMaxLocationY;
-			return;
-		}
+//		if (monster != null) {
+//			// already have a monster in town
+//			monster.soundCount = 1;
+//			monster.count = 1000;
+//			monster.flag = false;
+//			monster.destX = pollutionMaxLocationX;
+//			monster.destY = pollutionMaxLocationY;
+//			return;
+//		}
 
 		// try to find a suitable starting spot for monster
 
