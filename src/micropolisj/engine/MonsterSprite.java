@@ -39,12 +39,14 @@ public class MonsterSprite extends Sprite
 	// movement deltas
 	static int [] Gx = { 2, 2, -2, -2, 0 };
 	static int [] Gy = { -2, 2, 2, -2, 0 };
-
+	
 	static int [] ND1 = {  0, 1, 2, 3 };
 	static int [] ND2 = {  1, 2, 3, 0 };
 	static int [] nn1 = {  2, 5, 8, 11 };
 	static int [] nn2 = { 11, 2, 5,  8 };
 	
+	static int [] dx = {0, 0, 1, -1, 1, 1, -1, -1};
+	static int [] dy = {1, -1, 0, 0, 1, -1, 1, -1};
 	public boolean isWire(int xpos, int ypos) {
 		boolean isWireFlag = false;
 		int c = getChar(xpos, ypos);
@@ -70,7 +72,7 @@ public class MonsterSprite extends Sprite
 		this.frame = xpos > city.getWidth() / 2 ?
 			(ypos > city.getHeight() / 2 ? 10 : 7) :
 			(ypos > city.getHeight() / 2 ? 1 : 4);
-
+		//frame is used to decide the direction of the monster
 		this.count = 1000;
 		
 		CityLocation p = city.getLocationOfMaxPollution();
@@ -82,23 +84,32 @@ public class MonsterSprite extends Sprite
 		this.directChangeCnt = 5;
 		this.curDirec = city.PRNG.nextInt(11) % 5;
 	}
-//	@Override
-//	public void moveImpl() {
-//		this.directChangeCnt -= 1;
-//		
-//		if(this.directChangeCnt <= 0) {
-//			this.directChangeCnt = 100;
-//			this.curDirec = city.PRNG.nextInt(11) % 5;
-//		}
-//		int nextD = this.curDirec;
-//		//int nextD = city.PRNG.nextInt(11);
-//		//nextD = nextD % 5;
-//		this.x += Gx[nextD];
-//		this.y += Gy[nextD];
-//		return;
-//	}
 	@Override
-	public void moveImpl()
+	public void moveImpl() {
+		this.directChangeCnt -= 1;
+		//this.frame = 4;
+		if(this.directChangeCnt <= 0) {
+			this.directChangeCnt = 100;
+			this.curDirec = city.PRNG.nextInt(11) % 8;
+		}
+		//this.curDirec = 2;
+		int nextD = this.curDirec;
+		//int nextD = city.PRNG.nextInt(11);
+		//nextD = nextD % 5;
+		this.x += dx[nextD];
+		this.y += dy[nextD];
+		if(nextD == 0) this.frame = 15; 
+		if(nextD == 1) this.frame = 13; 
+		if(nextD == 2) this.frame = 14; 
+		if(nextD == 3) this.frame = 16; 
+		if(nextD == 4) this.frame = 4; 
+		if(nextD == 5) this.frame = 1; 
+		if(nextD == 6) this.frame = 7; 
+		if(nextD == 7) this.frame = 10; 
+		return;
+	}
+	//@Override
+	public void moveImpl2()
 	{
 		if (this.frame == 0) {
 			return;
@@ -107,7 +118,8 @@ public class MonsterSprite extends Sprite
 		if (soundCount > 0) {
 			soundCount--;
 		}
-
+		//frame can be 1 4 7 10, d can be 0 1 2 3,
+		//
 		int d = (this.frame - 1) / 3;   // basic direction
 		int z = (this.frame - 1) % 3;   // step index (only valid for d<4)
 		//d = city.PRNG.nextInt(2);
