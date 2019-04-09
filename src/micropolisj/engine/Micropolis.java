@@ -251,7 +251,7 @@ public class Micropolis
 		centerMassX = hX;
 		centerMassY = hY;
 		
-		while(this.monsterCount++ < 20) {
+		while(this.monsterCount++ < 50) {
 			makeMonster();
 		}
 	}

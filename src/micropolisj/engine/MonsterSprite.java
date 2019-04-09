@@ -57,7 +57,8 @@ public class MonsterSprite extends Sprite
 			if(WireTable[i] == c) 
 				isWireFlag = true;
 		}
-		return isWireFlag;
+		return isWireFlag && city.hasPower(xpos / 16, ypos / 16);
+
 	}
 	public MonsterSprite(Micropolis engine, int xpos, int ypos)
 	{
