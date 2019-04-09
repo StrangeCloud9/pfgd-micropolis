@@ -45,8 +45,11 @@ public class MonsterSprite extends Sprite
 	static int [] nn1 = {  2, 5, 8, 11 };
 	static int [] nn2 = { 11, 2, 5,  8 };
 	
-	static int [] dx = {0, 0, 1, -1, 1, 1, -1, -1};
-	static int [] dy = {1, -1, 0, 0, 1, -1, 1, -1};
+	static int [] dx = {1, 1, -1, -1, 0, 1, 0, -1};
+	static int [] dy = {-1, 1, 1, -1, -1, 0, 1, 0};
+	
+//	static int [] dx = {0, 0, 1, -1, 1, 1, -1, -1};
+//	static int [] dy = {1, -1, 0, 0, 1, -1, 1, -1};
 	public boolean isWire(int xpos, int ypos) {
 		boolean isWireFlag = false;
 		int c = getChar(xpos, ypos);
@@ -84,147 +87,204 @@ public class MonsterSprite extends Sprite
 		this.directChangeCnt = 5;
 		this.curDirec = city.PRNG.nextInt(11) % 5;
 	}
+	
+	//GODZILLA FRAMES
+	//   1...3 : northeast
+	//   4...6 : southeast
+	//   7...9 : southwest
+	//  10..12 : northwest
+	//      13 : north
+	//      14 : east
+	//      15 : south
+	//      16 : west
+	public void changeDirectionRandomly() {
+		this.curDirec = city.PRNG.nextInt(8);
+		if(curDirec < 4) {//
+			if(curDirec == 0) this.frame = 1;
+			if(curDirec == 1) this.frame = 4;
+			if(curDirec == 2) this.frame = 7;
+			if(curDirec == 3) this.frame = 10;
+		} else {//north east, south, west
+			
+			if(curDirec == 4) this.frame = 13;
+			if(curDirec == 5) this.frame = 14;
+			if(curDirec == 6) this.frame = 15;
+			if(curDirec == 7) this.frame = 16;
+			this.directChangeCnt = 10;
+		}
+	}
 	@Override
 	public void moveImpl() {
-		this.directChangeCnt -= 1;
-		//this.frame = 4;
-		if(this.directChangeCnt <= 0) {
-			this.directChangeCnt = 100;
-			this.curDirec = city.PRNG.nextInt(11) % 8;
+		//move it;
+		
+		
+		if(this.frame < 13) {
+			//move to next step
+			int nextD = (this.frame - 1) / 3;
+			int nextX = this.x + dx[nextD] * 2;
+			int nextY = this.y + dy[nextD] * 2;
+			boolean isWireFlag = isWire(nextX, nextY);
+			if(isWireFlag) {
+				changeDirectionRandomly();
+				return;
+			}
+			this.x = nextX;
+			this.y = nextY;
+			//destroy everything else
+			int c = getChar(x, y);
+			if (c == -1) {
+				//this.frame = 0; //kill zilla
+			}
+	
+			for (Sprite s : city.allSprites())
+			{
+				if (checkSpriteCollision(s) &&
+					(s.kind == SpriteKind.AIR ||
+					 s.kind == SpriteKind.COP ||
+					 s.kind == SpriteKind.SHI ||
+					 s.kind == SpriteKind.TRA)
+					) {
+					s.explodeSprite();
+				}
+			}
+	
+			destroyTile(x / 16, y / 16);
+			
 		}
-		//this.curDirec = 2;
-		int nextD = this.curDirec;
-		//int nextD = city.PRNG.nextInt(11);
-		//nextD = nextD % 5;
-		this.x += dx[nextD];
-		this.y += dy[nextD];
-		if(nextD == 0) this.frame = 15; 
-		if(nextD == 1) this.frame = 13; 
-		if(nextD == 2) this.frame = 14; 
-		if(nextD == 3) this.frame = 16; 
-		if(nextD == 4) this.frame = 4; 
-		if(nextD == 5) this.frame = 1; 
-		if(nextD == 6) this.frame = 7; 
-		if(nextD == 7) this.frame = 10; 
+		this.directChangeCnt --;
+		if(this.directChangeCnt <= 0) {
+			//its time to change direction
+			this.directChangeCnt = 100;
+			changeDirectionRandomly();
+		} else {
+			//follow the direction
+			if(this.frame <= 12) {
+				if(this.frame % 3 == 0) {
+					this.frame -= 1;
+				} else {
+					this.frame ++;
+				}
+			}
+		}
 		return;
 	}
-	//@Override
-	public void moveImpl2()
-	{
-		if (this.frame == 0) {
-			return;
-		}
-
-		if (soundCount > 0) {
-			soundCount--;
-		}
-		//frame can be 1 4 7 10, d can be 0 1 2 3,
-		//
-		int d = (this.frame - 1) / 3;   // basic direction
-		int z = (this.frame - 1) % 3;   // step index (only valid for d<4)
-		//d = city.PRNG.nextInt(2);
-		if (d < 4) { //turn n s e w
-			assert step == -1 || step == 1;
-			if (z == 2) step = -1;
-			if (z == 0) step = 1;
-			z += step;
-
-			if (getDis(x, y, destX, destY) < 60) {
-
-				// reached destination
-
-				if (!flag) {
-					// destination was the pollution center;
-					// now head for home
-					flag = true;
-					destX = origX;
-					destY = origY;
-				}
-				else {
-					// destination was origX, origY;
-					// hide the sprite
-					this.frame = 0;
-					return;
-				}
-			}
-
-			int c = getDir(x, y, destX, destY);
-			c = (c - 1) / 2;   //convert to one of four basic headings
-			assert c >= 0 && c < 4;
-
-			if ((c != d) && city.PRNG.nextInt(11) == 0) {
-				// randomly determine direction to turn
-				if (city.PRNG.nextInt(2) == 0) {
-					z = ND1[d];
-				}
-				else {
-					z = ND2[d];
-				}
-				d = 4;  //transition heading
-
-				if (soundCount == 0) {
-					city.makeSound(x/16, y/16, Sound.MONSTER);
-					soundCount = 50 + city.PRNG.nextInt(101);
-				}
-			}
-		}
-		else {
-			assert this.frame >= 13 && this.frame <= 16;
-
-			int z2 = (this.frame - 13) % 4;
-
-			if (city.PRNG.nextInt(4) == 0) {
-				int newFrame;
-				if (city.PRNG.nextInt(2) == 0) {
-					newFrame = nn1[z2];
-				} else {
-					newFrame = nn2[z2];
-				}
-				d = (newFrame-1) / 3;
-				z = (newFrame-1) % 3;
-
-				assert d < 4;
-			}
-			else {
-				d = 4;
-			}
-		}
-
-		this.frame = ((d * 3) + z) + 1;
-
-		assert this.frame >= 1 && this.frame <= 16;
-		
-		int nextX = this.x + Gx[d];
-		int nextY = this.y + Gy[d];
-		boolean isWireFlag = isWire(nextX, nextY);
-		if(isWireFlag) return;
-		
-		this.x += Gx[d];
-		this.y += Gy[d];
-
-		if (this.count > 0) {
-			this.count--;
-		}
-
-		int c = getChar(x, y);
-		if (c == -1 ||
-			(c == RIVER && this.count != 0 && false)
-			) {
-			this.frame = 0; //kill zilla
-		}
-
-		for (Sprite s : city.allSprites())
-		{
-			if (checkSpriteCollision(s) &&
-				(s.kind == SpriteKind.AIR ||
-				 s.kind == SpriteKind.COP ||
-				 s.kind == SpriteKind.SHI ||
-				 s.kind == SpriteKind.TRA)
-				) {
-				s.explodeSprite();
-			}
-		}
-
-		destroyTile(x / 16, y / 16);
-	}
+//	@Override
+//	public void moveImpl()
+//	{
+//		if (this.frame == 0) {
+//			return;
+//		}
+//
+//		if (soundCount > 0) {
+//			soundCount--;
+//		}
+//		//frame can be 1 4 7 10, d can be 0 1 2 3,
+//		//
+//		int d = (this.frame - 1) / 3;   // basic direction
+//		int z = (this.frame - 1) % 3;   // step index (only valid for d<4)
+//		//d = city.PRNG.nextInt(2);
+//		if (d < 4) { //turn n s e w
+//			assert step == -1 || step == 1;
+//			if (z == 2) step = -1;
+//			if (z == 0) step = 1;
+//			z += step;
+//
+//			if (getDis(x, y, destX, destY) < 60) {
+//
+//				// reached destination
+//
+//				if (!flag) {
+//					// destination was the pollution center;
+//					// now head for home
+//					flag = true;
+//					destX = origX;
+//					destY = origY;
+//				}
+//				else {
+//					// destination was origX, origY;
+//					// hide the sprite
+//					this.frame = 0;
+//					return;
+//				}
+//			}
+//
+//			int c = getDir(x, y, destX, destY);
+//			c = (c - 1) / 2;   //convert to one of four basic headings
+//			assert c >= 0 && c < 4;
+//
+//			if ((c != d) && city.PRNG.nextInt(11) == 0) {
+//				// randomly determine direction to turn
+//				if (city.PRNG.nextInt(2) == 0) {
+//					z = ND1[d];
+//				}
+//				else {
+//					z = ND2[d];
+//				}
+//				d = 4;  //transition heading
+//
+//				if (soundCount == 0) {
+//					city.makeSound(x/16, y/16, Sound.MONSTER);
+//					soundCount = 50 + city.PRNG.nextInt(101);
+//				}
+//			}
+//		}
+//		else {
+//			assert this.frame >= 13 && this.frame <= 16;
+//
+//			int z2 = (this.frame - 13) % 4;
+//
+//			if (city.PRNG.nextInt(4) == 0) {
+//				int newFrame;
+//				if (city.PRNG.nextInt(2) == 0) {
+//					newFrame = nn1[z2];
+//				} else {
+//					newFrame = nn2[z2];
+//				}
+//				d = (newFrame-1) / 3;
+//				z = (newFrame-1) % 3;
+//
+//				assert d < 4;
+//			}
+//			else {
+//				d = 4;
+//			}
+//		}
+//
+//		this.frame = ((d * 3) + z) + 1;
+//
+//		assert this.frame >= 1 && this.frame <= 16;
+//		
+//		int nextX = this.x + Gx[d];
+//		int nextY = this.y + Gy[d];
+//		boolean isWireFlag = isWire(nextX, nextY);
+//		if(isWireFlag) return;
+//		
+//		this.x += Gx[d];
+//		this.y += Gy[d];
+//
+//		if (this.count > 0) {
+//			this.count--;
+//		}
+//
+//		int c = getChar(x, y);
+//		if (c == -1 ||
+//			(c == RIVER && this.count != 0 && false)
+//			) {
+//			this.frame = 0; //kill zilla
+//		}
+//
+//		for (Sprite s : city.allSprites())
+//		{
+//			if (checkSpriteCollision(s) &&
+//				(s.kind == SpriteKind.AIR ||
+//				 s.kind == SpriteKind.COP ||
+//				 s.kind == SpriteKind.SHI ||
+//				 s.kind == SpriteKind.TRA)
+//				) {
+//				s.explodeSprite();
+//			}
+//		}
+//
+//		destroyTile(x / 16, y / 16);
+//	}
 }
