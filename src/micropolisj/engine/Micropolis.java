@@ -125,7 +125,8 @@ public class Micropolis
 	int nuclearCount;
 	int seaportCount;
 	int airportCount;
-
+	int monsterCount = 0;
+	
 	int totalPop;
 	int lastCityPop;
 
@@ -249,6 +250,10 @@ public class Micropolis
 
 		centerMassX = hX;
 		centerMassY = hY;
+		
+		while(this.monsterCount++ < 20) {
+			makeMonster();
+		}
 	}
 
 	void fireCensusChanged()
@@ -2336,10 +2341,10 @@ public class Micropolis
 			int x = PRNG.nextInt(getWidth() - 19) + 10;
 			int y = PRNG.nextInt(getHeight() - 9) + 5;
 			int t = getTile(x, y);
-			if (t == RIVER) {
+			//if (t == RIVER) {
 				makeMonsterAt(x, y);
 				return;
-			}
+			//}
 		}
 
 		// no "nice" location found, just start in center of map then

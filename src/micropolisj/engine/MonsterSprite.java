@@ -124,7 +124,7 @@ public class MonsterSprite extends Sprite
 			int nextX = this.x + dx[nextD] * 2;
 			int nextY = this.y + dy[nextD] * 2;
 			boolean isWireFlag = isWire(nextX, nextY);
-			if(isWireFlag) {
+			if(isWireFlag || getChar(nextX, nextY) == -1) {
 				changeDirectionRandomly();
 				return;
 			}
