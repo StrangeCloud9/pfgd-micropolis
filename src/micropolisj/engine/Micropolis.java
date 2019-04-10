@@ -251,7 +251,7 @@ public class Micropolis
 		centerMassX = hX;
 		centerMassY = hY;
 		
-		while(this.monsterCount++ < 50) {
+		while(this.monsterCount++ < 40) {
 			makeMonster();
 		}
 	}
@@ -512,7 +512,7 @@ public class Micropolis
 				(cityTime % TAXFREQ) == 0 &&
 				((fcycle + 1) % 16) == 10 &&
 				((acycle + 1) % 2) == 0;
-		if(ret == true) budget.totalFunds += 10000;
+		if(ret == true) budget.totalFunds += 3000;
 		return ret;
 	}
 
@@ -2325,15 +2325,6 @@ public class Micropolis
 	public void makeMonster()
 	{
 		MonsterSprite monster = (MonsterSprite) getSprite(SpriteKind.GOD);
-//		if (monster != null) {
-//			// already have a monster in town
-//			monster.soundCount = 1;
-//			monster.count = 1000;
-//			monster.flag = false;
-//			monster.destX = pollutionMaxLocationX;
-//			monster.destY = pollutionMaxLocationY;
-//			return;
-//		}
 
 		// try to find a suitable starting spot for monster
 
